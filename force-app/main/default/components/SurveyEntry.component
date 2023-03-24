@@ -1,0 +1,172 @@
+<apex:component >
+
+    <apex:attribute name="entry" type="SurveyEntry" description="The entry to render"/>
+    <apex:attribute name="myController" type="SurveyController" description="The survey's controller class"/>
+    <p>{!entry.prompt}</p>
+                
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Binary'}">
+        <p class="allowableBlanks" val="1"></p>
+        <apex:variable rendered="{!entry.response == entry.first_label}" var="" value="" >
+            <input type="radio" id="{!entry.answer.id}_A" name="{!entry.answer.id}" value="{!entry.first_label}" checked="checked" />
+        </apex:variable>
+        <apex:variable rendered="{!entry.response != entry.first_label}" var="" value="" >
+            <input type="radio" id="{!entry.answer.id}_A" name="{!entry.answer.id}" value="{!entry.first_label}" />
+        </apex:variable>
+        <label for="{!entry.answer.id}_A">{!entry.first_label}</label>
+        
+        <apex:variable rendered="{!entry.response == entry.second_label}" var="" value="" >
+            <input type="radio" id="{!entry.answer.id}_B" name="{!entry.answer.id}" value="{!entry.second_label}" checked="checked" />
+        </apex:variable>
+        <apex:variable rendered="{!entry.response != entry.second_label}" var="" value="" >
+            <input type="radio" id="{!entry.answer.id}_B" name="{!entry.answer.id}" value="{!entry.second_label}" />
+        </apex:variable>
+        <label for="{!entry.answer.id}_B">{!entry.second_label}</label>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Short Form'}">
+        <input type="text" id="{!entry.answer.id}" value="{!entry.response}"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Email'}">
+        <p class="error">Please enter a valid email.</p>
+        <input type="email" id="{!entry.answer.id}" value="{!entry.response}" pattern="^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Phone'}">
+        <p class="error">Please enter a valid phone number.</p>
+        <input type="tel" id="{!entry.answer.id}" value="{!entry.response}" pattern="^(?:\+1)?(?: |-)?(?:\d){3}(?: |-|.)?(?:\d){3}(?: |-|.)?(?:\d){4}$"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Date'}">
+        <p class="error">Please enter a valid date.</p>
+        <input type="date" id="{!entry.answer.id}" value="{!entry.response}"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Time'}">
+        <input type="time" id="{!entry.answer.id}" value="{!entry.response}"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Date/Time'}">
+        <input type="datetime-local" id="{!entry.answer.id}" value="{!entry.response}"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Week'}">
+        <input type="week" id="{!entry.answer.id}" value="{!entry.response}"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Month'}">
+        <input type="month" id="{!entry.answer.id}" value="{!entry.response}"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Password'}">
+        <input type="password" id="{!entry.answer.id}" value="{!entry.response}" pattern="{entry.detailresponse}"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'URL'}">
+        <p class="error">Please enter a valid url.</p>
+        <input type="text" subtype="url" id="{!entry.answer.id}" value="{!entry.response}" pattern="^(?:https?:\/\/)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Color'}">
+        <p class="error">Please enter a valid color.</p>
+        <input type="color" id="{!entry.answer.id}" value="{!entry.response}"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Number'}">
+        <input type="number" id="{!entry.answer.id}" value="{!entry.response}" min="{!entry.min_value}" max="{!entry.max_value}" step="{!entry.step}"/>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Long Form'}">
+        <textarea rows="3" id="{!entry.answer.id}">{!entry.response}</textarea>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Picklist'}">
+        <!--
+        <select id="{!entry.answer.id}">
+            <option value=""></option>
+            <apex:repeat var="opt" value="{!entry.options}">
+                <apex:variable rendered="{!entry.response == opt}" var="" value="" >
+                    <option value="{!opt}" selected="selected">{!opt}</option>
+                </apex:variable>
+                <apex:variable rendered="{!entry.response != opt}" var="" value="" >
+                    <option value="{!opt}">{!opt}</option>
+                </apex:variable>
+            </apex:repeat>
+        </select>
+        -->
+        <apex:repeat var="opt" value="{!entry.options}">
+            <p class="allowableBlanks" val="1"></p>
+            <apex:variable rendered="{!entry.response == opt}" var="" value="" >
+                <input type="radio" id="{!entry.answer.id + opt}" name="{!entry.answer.id}" value="{!opt}" checked="checked" />
+            </apex:variable>
+            <apex:variable rendered="{!entry.response != opt}" var="" value="" >
+                <input type="radio" id="{!entry.answer.id + opt}" name="{!entry.answer.id}" value="{!opt}" />
+            </apex:variable>
+            <label for="{!entry.answer.id + opt}">{!opt}</label>
+        </apex:repeat>
+        
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Multi-Select'}">
+        <apex:repeat var="opt" value="{!entry.options}">
+            <apex:variable rendered="{!CONTAINS(';' + entry.response + ';', ';' + opt + ';')}" var="" value="" >
+                <input type="checkbox" name="{!entry.answer.id}" id="{!entry.answer.id + opt}" value="{!opt}" checked="checked" />
+            </apex:variable>
+            <apex:variable rendered="{!NOT(CONTAINS(';' + entry.response + ';', ';' + opt + ';'))}" var="" value="" >
+                <input type="checkbox" name="{!entry.answer.id}" id="{!entry.answer.id + opt}" value="{!opt}" />
+            </apex:variable>
+            <label class="checkboxlabel" for="{!entry.answer.id + opt}">{!opt}</label>
+        </apex:repeat>
+        <input id="{!entry.answer.id}" type="text" style="display:none;" value="{!entry.response}" />
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.type == 'Range'}">
+        <div class="range">    
+            <input class="range-input" type="range" id="{!entry.answer.id}" value="{!entry.response}" min="{!entry.min_value}" max="{!entry.max_value}" step="{!entry.step}"/>
+        </div>
+        <ul class="range-labels">
+            <apex:repeat var="val" value="{!entry.values}">
+                <li>{!val}</li>
+            </apex:repeat>
+        </ul>
+        
+        <script>
+            var sheet{!entry.answer.id} = document.createElement('style'),  
+            $rangeInput{!entry.answer.id} = $('#{!entry.answer.id}'),
+            prefs = ['webkit-slider-runnable-track', 'moz-range-track', 'ms-track'];
+            document.body.appendChild(sheet{!entry.answer.id});
+            
+            var getTrackStyle{!entry.answer.id} = function (el) {
+                var curVal = el.value,
+                stepsize = 100/({!entry.max_value - entry.min_value + 1}),
+                val = Math.ceil((curVal - 1) * 100/({!entry.max_value - entry.min_value})),
+                style = '';
+                $('.range-labels li').removeClass('active selected');
+                var curLabel = $('.range-labels').find('li:nth-child(' + curVal + ')');
+                curLabel.addClass('active selected');
+                curLabel.prevAll().addClass('selected');
+                for (var i = 0; i < prefs.length; i++) {
+                    style += '#{!entry.answer.id}_container .range {background: linear-gradient(to right, {!myController.ResponseDetails.color} 0%, {!myController.ResponseDetails.color} ' + val + '%, #fff ' + val + '%, #fff 100%)}';
+                    style += '#{!entry.answer.id}_container .range input::-' + prefs[i] + '{background: linear-gradient(to right, {!myController.ResponseDetails.color} 0%, {!myController.ResponseDetails.color} ' + val + '%, #b2b2b2 ' + val + '%, #b2b2b2 100%)}';
+                    style += '#{!entry.answer.id}_container li { width: ' + stepsize + '%; }';
+                }
+                return style;
+            }
+            $rangeInput{!entry.answer.id}.on('input', function () {
+                sheet{!entry.answer.id}.textContent = getTrackStyle{!entry.answer.id}(this);
+            });
+            $('.range-labels li').on('click', function () {
+                var index = $(this).index();
+                $rangeInput.val(index + 1).trigger('input');
+            });
+            $(function() { sheet{!entry.answer.id}.textContent = getTrackStyle{!entry.answer.id}($('#{!entry.answer.id}')[0]); });
+        </script>
+    </apex:outputPanel>
+    
+    <apex:outputPanel layout="block" rendered="{!entry.followups.size == 0}">
+        <div id="{!entry.answer.id}_detailsContainer" style="display:none;">
+            <p>{!entry.detailprompt}</p>
+            <textarea rows="3" id="{!entry.answer.id}_details">{!entry.detailresponse}</textarea>
+        </div>
+    </apex:outputPanel>
+</apex:component>

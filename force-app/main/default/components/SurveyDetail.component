@@ -1,0 +1,580 @@
+<apex:component controller="SurveyController" access="global">
+  <apex:attribute name="srIdValue" description="Survey Response ID" type="String" required="false" assignTo="{!srId}" />
+  <apex:attribute name="sIdValue" description="Survey ID" type="String" required="false" assignTo="{!sId}" />
+  <apex:attribute name="cIdValue" description="Contact ID" type="String" required="false" assignTo="{!cId}" />
+  <apex:attribute name="zIdValue" description="Case ID" type="String" required="false" assignTo="{!zId}" />
+  <apex:attribute name="isEmailValue" description="Boolean dictating whether this component is being loaded from an email or webpage" type="boolean" required="false" assignTo="{!isEmail}" />
+  
+  <apex:variable var="SR" value="{!ResponseDetails}"/>
+  <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet"/>
+  
+  <style>
+  .popup-button{
+      text-align: center!important;
+      vertical-align: middle!important;
+      transition: border .15s linear!important;
+      -webkit-appearance: button!important;
+      cursor: pointer!important;
+      position: relative!important;
+      display: inline-block!important;
+      padding: 0!important;
+      background: transparent!important;
+      background-clip: border-box!important;
+      border: 1px solid transparent!important;
+      border-radius: .25rem!important;
+      line-height: 1.875rem!important;
+      text-decoration: none!important;
+      white-space: normal!important;
+      user-select: none!important;
+      padding-left: 1rem!important;
+      padding-right: 1rem!important;
+      margin:3px!important;
+      font-size: 15px;
+  }
+  .button-white{
+      color: rgba(27, 82, 151, 1);
+      border: 1px solid rgb(221, 219, 218);
+      transition: border .15s linear;
+      border-color: rgb(221, 219, 218);
+      background-color: rgb(255, 255, 255);
+  }
+  .button-blue{
+      background-color: rgba(27, 82, 151, 1)!important;
+      border-color: rgba(27, 82, 151, 1)!important;
+      color: rgb(255, 255, 255)!important;
+  }
+    .fadeInAndOut {
+      border-radius: 5px;
+      border-color: {!SR.color};
+      animation: fadeinout 1s linear;
+      -webkit-animation: fadeinout 1s linear;
+    }
+    
+    @keyframes fadeinout {
+      0%,100% { border-color: white }
+      50% { border-color: {!SR.color} }
+    }
+    @-webkit-keyframes fadeinout {
+      0%,100% { border-color: white }
+      50% { border-color: {!SR.color} }
+    }
+    .completed {
+        font-style: italic;
+    }
+    .error {
+        color: red;
+        font-size: 0.75em;
+        margin: 0.1em;
+        display: none;
+    }
+    h1 {
+      margin: 5px;
+    }
+    .container {
+      border: #888 solid 1px;
+      padding: 1%;
+      border: 1px solid white;
+    }
+    .followup {
+        width: 47%;
+        display: inline-block;
+    }
+    .followupContainer {
+        margin-left: 10%;
+        display: none;
+    }
+    .allowableBlanks {
+        display: none;
+    }
+    html {
+        display: table;
+        margin: auto;
+    }
+    body {
+        font-family: 'Nunito', sans-serif;
+        margin: 25px auto;
+        padding: 25px;
+        max-width: 8.5in; 
+    }
+    input[type=text], input[type=email], input[type=tel], input[type=number],
+    input[type=date], input[type=time], input[type=datetime-local] ,
+    input[type=week], input[type=month], input[type=password] {
+      width: 100%;
+      border-radius: 0.25em;
+      border-style: groove;
+    }
+    input[type=radio], input[type=checkbox] {
+      margin-left: 3em;
+      border:1px solid #999999;
+    }
+    input[type=radio]:focus {
+        width:14px;
+        height:14px;
+        border-radius: 999px;
+        -webkit-appearance: inherit;
+        margin-bottom:-3px;
+        box-sizing:border-box;
+        border:1px inset {!SR.color};
+    }
+    input[type=radio]:checked {
+        -webkit-appearance: radio;
+    }
+    input {
+      outline: 0;
+    }
+    input[type=button] {
+        cursor: pointer;
+    }
+    .alert-danger {
+        background-color: #f2dede;
+        border-color: #ebcccc;
+        color: #a94442;
+    }
+    .alert {
+        padding: .75rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: .25rem;
+    }
+    textarea {
+        width:70%;
+    }
+    
+    .range {
+      position: relative;
+      width: 100%;
+      height: 5px;
+    }
+    .range input {
+      width: 100%;
+      position: absolute;
+      top: 2px;
+      height: 0;
+      -webkit-appearance: none;
+    }
+    .range input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      margin: -8px 0  0;
+      border-radius: 50%;
+      background: {!SR.color};
+      cursor: pointer;
+      border: 0 !important;
+    }
+    .range input::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      margin: -8px 0  0;
+      border-radius: 50%;
+      background: {!SR.color};
+      cursor: pointer;
+      border: 0 !important;
+    }
+    .range input::-ms-thumb {
+      width: 18px;
+      height: 18px;
+      margin: -8px 0  0;
+      border-radius: 50%;
+      background: {!SR.color};
+      cursor: pointer;
+      border: 0 !important;
+    }
+    .range input::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 2px;
+      cursor: pointer;
+      background: #b2b2b2;
+    }
+    .range input::-moz-range-track {
+      width: 100%;
+      height: 2px;
+      cursor: pointer;
+      background: #b2b2b2;
+    }
+    .range input::-ms-track {
+      width: 100%;
+      height: 2px;
+      cursor: pointer;
+      background: #b2b2b2;
+    }
+    .range input:focus {
+      background: none;
+      outline: none;
+    }
+    .range input::-ms-track {
+      width: 100%;
+      cursor: pointer;
+      background: transparent;
+      border-color: transparent;
+      color: transparent;
+    }
+    
+    .range-labels {
+      margin: 18px -41px 0;
+      padding: 0;
+      list-style: none;
+    }
+    .range-labels li {
+      position: relative;
+      float: left;
+      width: 90.25px;
+      text-align: center;
+      color: #b2b2b2;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .range-labels li::before {
+      position: absolute;
+      top: -25px;
+      right: 0;
+      left: 0;
+      content: "";
+      margin: 0 auto;
+      width: 9px;
+      height: 9px;
+      background: #b2b2b2;
+      border-radius: 50%;
+    }
+    .range-labels .active {
+      color: {!SR.color};
+    }
+    .range-labels .selected::before {
+      background: {!SR.color};
+    }
+    .range-labels .active.selected::before {
+      display: none;
+    }
+    
+  </style>
+  
+  <apex:form >
+    
+    <h1 id="subject" style="display:block;margin:0 auto;text-align:center;">
+        {!SR.title}
+    </h1>
+    <img style="display:block;max-width:50%;max-height:250px;margin:0 auto" src="{!SR.logo}"/>
+    
+    <apex:outputPanel rendered="{!SR.RequiresExplanation == true}">
+        <apex:outputPanel rendered="{!SR.RequiresDowngradeExplanation}">
+            <apex:outputText value="{!SR.downgradePrompt}" escape="false" />
+            <textarea rows="5" style="width:100%;" id="DowngradeReason" value="{!SR.downgradeExplanation}"></textarea>
+            <button id="submitDowngradeReason" style="margin-top:10px;">Submit</button>
+        </apex:outputPanel>
+        
+        <apex:outputPanel rendered="{!SR.RequiresUpgradeExplanation}">
+            <apex:outputText value="{!SR.upgradePrompt}" escape="false" />
+            <textarea rows="5" style="width:100%;" id="UpgradeReason" value="{!SR.upgradeExplanation}"></textarea>
+            <button id="submitUpgradeReason" style="margin-top:10px;">Submit</button>
+        </apex:outputPanel>
+    </apex:outputPanel>
+  
+    <apex:outputPanel rendered="{!SR.RequiresExplanation == false}">
+    
+    <p id="positivefeeback">
+        <apex:outputText value="{!SR.positiveDisplay}" escape="false" rendered="{!SR.csat == 'Positive'}" />
+    </p>
+    <p id="negativefeedback">
+        <apex:outputText value="{!SR.negativeDisplay}" escape="false" rendered="{!SR.csat == 'Negative'}" />
+    </p>
+    <p id="neutralfeedback">
+        <apex:outputText value="{!SR.neutralDisplay}" escape="false" rendered="{!SR.csat == 'Neutral'}" />
+    </p>
+    <p id="instruction">
+        <apex:outputText value="{!SR.instructions}" escape="false" />
+    </p>
+    <hr/>
+    
+    <apex:variable rendered="{! NULLVALUE(SR.downgradeExplanation, '') != '' }" var="" value="" >
+        <div style="padding-left:4em;" id="downgrade_container" class="container">
+            The reason you provided for why you downgraded your satisfaction score:
+            <div style="margin-top:1em;padding-left:4em;">
+                <apex:outputText value="{!SR.downgradeExplanation}" escape="false" />
+            </div>
+        </div>
+    </apex:variable>
+    
+    <apex:variable rendered="{! NULLVALUE(SR.upgradeExplanation, '') != '' }" var="" value="" >
+        <div style="padding-left:4em;" id="upgrade_container" class="container">
+            The reason you provided for why you upgraded your satisfaction score:
+            <div style="margin-top:1em;padding-left:4em;">
+                <apex:outputText value="{!SR.upgradeExplanation}" escape="false" />
+            </div>
+        </div>
+    </apex:variable>
+    
+    <hr/>
+    
+    <apex:repeat var="entry" value="{!SR.entries}">
+        <apex:variable rendered="{! NULLVALUE(entry.display, 'Always') == 'Always' || CONTAINS(entry.display, SR.csat)}" var="" value="" >
+            <div id="{!entry.answer.id}_container" class="container" detailValues="{!entry.answers_request_detail}">
+                <c:SurveyEntry entry="{!entry}" myController="{!MyController}" />
+                
+                <apex:outputPanel rendered="{!entry.followups.size > 0}">
+                    <div id="{!entry.answer.id}_followUpsContainer" class="followupContainer">
+                        <p>{!entry.detailprompt}</p>
+                        <apex:repeat var="followup" value="{!entry.followups}">
+                            <div id="{!followup.answer.id}_container" class="container followup" detailValues="{!followup.answers_request_detail}">
+                                <c:SurveyEntry entry="{!followup}" myController="{!MyController}" />
+                            </div>
+                        </apex:repeat>
+                    </div>
+                </apex:outputPanel>
+                <p>&nbsp;</p>
+            </div>
+        </apex:variable>
+    </apex:repeat>
+    
+    <hr/>
+    <div>
+        <button id="submit" class = "popup-button button-blue">Submit</button>
+    </div>
+    <p id="finished" style="display:none;">
+        <apex:outputText value="{!SR.postscreen}" escape="false" />
+    </p>
+    
+    <p id="footnotes" style="font-size:0.8em;">
+        <apex:outputText value="{!SR.footnotes}" escape="false" />
+    </p>
+    </apex:outputPanel>
+  </apex:form>
+  
+  
+  
+  <script type="text/javascript">
+    
+    var allowableBlanks = 0;
+    $(document).ready(function() {
+      $('.allowableBlanks').each(function(n,e) { allowableBlanks += parseInt($(e).attr('val')); });
+        
+      var urlParameters = location.search.substring(1);
+      var params = {};
+      if (urlParameters.length > 0)
+      {
+        params = JSON.parse('{"' + decodeURI(urlParameters).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}'); //"
+      }
+      
+      if (
+        (params == null || params === undefined || params == {})
+        || ((params.sId === null || params.cId === undefined) && params.srId === undefined)
+      )
+      {
+        alert ('Invalid URL. Please follow the link as it was sent to you.');
+      }
+      CheckAllInputs();
+      
+      $('#submit,#submitDowngradeReason,#submitUpgradeReason').bind('click', function(e)
+      {
+          e.preventDefault();
+          handleSubmit(e.currentTarget.id);
+      });
+      $('input[type!=checkbox],textarea,select').bind('change', showHideDetailPrompt);
+      $('input[type!=hidden],textarea,select').each(function(ndx, elt) { showHideDetailPrompt(undefined, this); });
+      $('input[type=checkbox]').bind('change', handleCheckbox);
+    });
+    
+    function handleCheckbox(e, t) {
+        var $e = (e !== undefined ? $(e.target) : $(t));
+        var thisId = $e.attr('Id');
+        if (thisId === undefined) { return; }
+          
+        var selected = [];
+        $('input[name=' + $e.attr('name') + ']').each(function(n, chk) {
+            if (chk.checked) {
+                selected.push(chk.value);
+            }
+        });
+        $i = $('#' + $e.attr('name'));
+        $i.val(selected.join(';'));
+        $i.trigger('change');
+    }
+    function showHideDetailPrompt(e, t)
+    {
+      var $e = (e !== undefined ? $(e.target) : $(t));
+      var thisId = $e.attr('Id');
+      
+      if (thisId === undefined) { return; }
+      if ($e.attr('type') == 'radio' && !$e.is(':checked')) { return; }
+      var eType = ($e.attr('subtype') || $e.attr('type'));
+      if (['email', 'tel', 'url'].indexOf(eType) > -1) {
+          if ($e[0].validity.valid) {
+              $e.parent().children('.error').hide(); // hide error
+          } else {
+              $e.parent().children('.error').show(); // show error
+              return;
+          }
+      }
+      if (thisId.indexOf('_details') > -1)
+      {
+          if (e !== undefined)
+          {
+              pass = {
+                  'Id': thisId.replace('_details',''),
+                  'DetailResponse': this.value
+              };
+              Visualforce.remoting.Manager.invokeAction(
+                  '{!$RemoteAction.SurveyController.SubmitResponse}',
+                  JSON.stringify(pass),
+                  handleUpdate
+              );
+          }
+          return;
+      }
+      
+      var container = $e.parent().parent().parent();
+      if (container[0].tagName.toLowerCase() == 'span') {
+          container = container.parent();
+      }
+      var detailContainer = $('#' + container.attr('Id').replace('_container', '_detailsContainer'));
+      var followupContainer = $('#' + container.attr('Id').replace('_container', '_followUpsContainer'));
+      var detailValues = container.attr('detailValues');
+      
+      eVals = $e.val().split(';');
+      
+      eVals.forEach(function (eV, ndx) {
+          if (detailValues !== undefined)
+          {
+              var dVs = detailValues.split(/[\n|\r\n]/g); //(/[,|;|\n|\r\n|\t]/g);
+              var showDetailContainer = (eV != '' && dVs.indexOf(eV) > -1);
+              if (showDetailContainer)
+              {
+                  detailContainer.show();
+                  followupContainer.show();
+              }
+              else
+              {
+                  detailContainer.hide();
+                  followupContainer.hide();
+              }
+          }
+      });
+      
+      if (e !== undefined)
+      {
+          var myId = '';
+          var myAction = '';
+          var pass = {};
+          
+          if (e.currentTarget.id == 'DowngradeReason' || e.currentTarget.id == 'UpgradeReason')
+          {
+              myId = '{!SR.response.Id}';
+              myAction = '{!$RemoteAction.SurveyController.SubmitReason}';
+              pass.Direction = e.currentTarget.id.replace('Reason', '');
+              pass.csat = '{!SR.inputs.csat}';
+          }
+          else
+          {
+              myId = container.attr('Id').replace('_container','');
+              myAction = '{!$RemoteAction.SurveyController.SubmitResponse}';
+          }
+          
+          pass.Id = myId;
+          pass.Response = this.value;
+          
+          Visualforce.remoting.Manager.invokeAction(
+              myAction,
+              JSON.stringify(pass),
+              handleUpdate
+          );
+          
+          CheckAllInputs();
+      }
+    }
+    function CheckAllInputs()
+    {
+        if (($("input[type!=hidden]:empty:not(:checked)").length - allowableBlanks) == 0)
+        {
+            $('#finished').show();
+        }
+        else
+        {
+            $('#finished').hide();
+        }
+        $('select').each(function(e)
+        {
+            if (this.value != '')
+            {
+                $(this).find('option').filter(function() {
+                    return !this.value || $.trim(this.value).length == 0 || $.trim(this.text).length == 0;
+                })
+                .remove();
+                if ($(this).attr('multiple') == 'multiple')
+                {
+                    $(this).attr('size', $(this).find('option').length);
+                }
+            }
+        });
+    }
+    
+    function handleUpdate(result)
+    {
+      result = JSON.parse($('<div/>').html(result).text());
+      
+      if (result.reload == true)
+      {
+          location.reload();
+      }
+      
+      if (result.success == true)
+      {
+        displayUpdate('#' + result.Id + '_container');
+      }
+      else
+      {
+        alert("The following error has occurred: \n" + result.error);
+      }
+    }
+    
+    function displayUpdate(elt_Id)
+    {
+        $(elt_Id).addClass('fadeInAndOut');
+        setTimeout( function(){
+            $(elt_Id).removeClass('fadeInAndOut');
+        },1000);
+    }
+
+    function handleSubmit(target)
+    {
+        if (target == 'submitDowngradeReason' || target == 'submitUpgradeReason')
+        {
+            if ($('#' + target.replace('submit','')).val() != '')
+            {
+                //setTimeout(location.reload(), 1000);
+            }
+            else
+            {
+                alert('You must submit a reason for your change to take affect.');
+                return;
+            }
+        }
+        else
+        {
+              pass = {
+                  'Id': '{!SR.response.Id}'
+              };
+              pass.csat = '{!SR.inputs.csat}';
+              Visualforce.remoting.Manager.invokeAction(
+                  '{!$RemoteAction.SurveyController.markSurveyResponce}',
+                  JSON.stringify(pass),
+                  handleUpdate
+              );
+             if (pass.csat == "Positive"){
+              alert('Thank you for taking the time to fill out this survey and providing us with helpful feedback! Your submission will be reviewed by our team and considered when making future improvements. To show our appreciation, you have now been entered into our monthly drawing to win a Surprise on us!');
+              }else{
+              alert('Thank you for taking the time to fill out this survey and providing us with constructive feedback. Your submission will be reviewed by our escalations team and you will receive a follow up within one business day.');
+              
+              }
+            $('.container').each(function(ndx, e)
+            {
+                displayUpdate('#' + $(e).attr('Id'));
+            });
+            $('#finished').addClass('completed');
+        }
+        $('#' + target).html('Thanks!');
+        $('#' + target).attr('disabled','disable');
+        
+    }
+    
+  </script>
+  
+</apex:component>
